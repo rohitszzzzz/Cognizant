@@ -1,55 +1,40 @@
-package com.cts.employeeasset.userservice.service;
+package com.cts.employeeasset.userservice.controller;
 
-import com.cts.employeeasset.userservice.model.Employee;
-import com.cts.employeeasset.userservice.repository.EmployeeRepository;
+import com.cts.employeeasset.userservice.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-@Service
+@RestController
+@RequestMapping("/employees")
 @RequiredArgsConstructor
-public class EmployeeService {
+public class EmployeeController {
 
-    private final EmployeeRepository repo;
+    private final EmployeeService service;
 
-    public Optional<Map<String, Object>> login(String empId, String email, String password) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
 
-        if (empId != null) {
-            try {
-                Integer id = Integer.parseInt(empId);
-                return repo.findById(id)
-                        .filter(e -> e.getEmpPassword().equals(password))
-                        .map(e -> Map.of(
-                                "status", "OK",
-                                "empId", e.getEmpId(),
-                                "empName", e.getEmpName(),
-                                "role", e.getRole()
-                        ));
-            } catch (Exception ignored) {}
-        }
+        String empId = body.get("empId");
+        String email = body.get("empEmail");
+        String password = body.get("password");
 
-        if (email != null) {
-            return repo.findByEmpEmail(email)
-                    .filter(e -> e.getEmpPassword().equals(password))
-                    .map(e -> Map.of(
-                            "status", "OK",
-                            "empId", e.getEmpId(),
-                            "empName", e.getEmpName(),
-                            "role", e.getRole()
-                    ));
-        }
-
-        return Optional.empty();
+        return service.login(empId, email, password)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).body(Map.of("status", "FAIL")));
     }
 
-    public Optional<Employee> getEmployee(Integer id) {
-        return repo.findById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEmployee(@PathVariable Integer id) {
+        return service.getEmployee(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    public List<Employee> searchByName(String name) {
-        return repo.findByEmpNameContainingIgnoreCase(name);
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(defaultValue = "") String name) {
+        return ResponseEntity.ok(service.searchByName(name));
     }
 }
