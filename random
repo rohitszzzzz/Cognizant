@@ -1,60 +1,13 @@
-package com.cts.employeeasset.userservice.controller;
+package com.cts.employeeasset.userservice.model;
 
-import com.cts.employeeasset.userservice.model.Employee;
-import com.cts.employeeasset.userservice.service.EmployeeService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@RestController
-@RequestMapping("/employees")
-@RequiredArgsConstructor
-public class EmployeeController {
-
-    private final EmployeeService service;
-
-    // LOGIN: accepts { empId OR empEmail } + password
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String empId = body.get("empId");
-        String email = body.get("empEmail");
-        String password = body.get("password");
-
-        return service.login(empId, email, password)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).body(Map.of("status","FAIL")));
-    }
-
-    // CRUD + Search
-
-    @PostMapping
-    public ResponseEntity<?> addEmployee(@RequestBody Employee employee) {
-        return ResponseEntity.ok(service.addEmployee(employee));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
-        return service.updateEmployee(id, employee)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
-        boolean removed = service.deleteEmployee(id);
-        return removed ? ResponseEntity.ok(Map.of("status","DELETED"))
-                : ResponseEntity.status(404).body(Map.of("status","NOT_FOUND"));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getEmployee(@PathVariable Integer id) {
-        return service.getEmployee(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
-    // Department screen uses this endpoint to search employees by name
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam(defaultValue = "") String name) {
-        return ResponseEntity.ok(service.searchByName(name));
-    }
+@Data
+@AllArgsConstructor
+public class LoginResponse {
+    private String status;
+    private Integer empId;
+    private String empName;
+    private String role;
 }
