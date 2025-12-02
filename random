@@ -1,11 +1,22 @@
-package com.cts.employeeasset.userservice;
+package com.cts.employeeasset.userservice.model;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.Data;
 
-@SpringBootApplication
-public class UserServiceApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(UserServiceApplication.class, args);
-    }
+import java.time.LocalDate;
+
+@Entity
+@Data
+public class Employee {
+
+    @Id
+    private Integer empId;
+
+    private String empName;
+    private String empPassword;
+    private String empEmail;
+    private LocalDate dob;
+    private String empAddress;
+    private String role;   // USER or DEPT
 }
