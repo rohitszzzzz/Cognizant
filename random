@@ -1,13 +1,146 @@
-package com.cts.employeeasset.userservice.model;
+package com.cts.employeeasset.userservice.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.cts.employeeasset.userservice.model.Employee;
+import com.cts.employeeasset.userservice.model.LoginResponse;
+import com.cts.employeeasset.userservice.repository.EmployeeRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@Data
-@AllArgsConstructor
-public class LoginResponse {
-    private String status;
-    private Integer empId;
-    private String empName;
-    private String role;
-}
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class EmployeeService {
+
+    private final EmployeeRepository repo;
+
+    // LOGIN
+    public Optional<LoginResponse> login(String empId, String email, String password) {
+
+        // LOGIN BY ID
+        if (empId != null && !empId.isBlank()) {
+            try {
+                Integer id = Integer.parseInt(empId);
+
+                return repo.findById(id)
+                        .filter(e -> e.getEmpPassword().equals(password))
+                        .map(e -> new LoginResponse(
+                                "OK",
+                                e.getEmpId(),
+                                e.getEmpName(),
+                                e.getRole().name()
+                        ));
+
+            } catch (Exception ignored) {}
+        }
+
+        // LOGIN BY EMAIL
+        if (email != null && !email.isBlank()) {
+            return repo.findByEmpEmail(email)
+                    .filter(e -> e.getEmpPassword().equals(password))
+                    .map(e -> new LoginResponse(
+                            "OK",
+                            e.getEmpId(),
+                            e.getEmpName(),
+                            e.getRole().name()
+                    ));
+        }
+
+        return Optional.empty();
+    }
+
+    // ADD EMPLOYEE
+    public Employee addEmployee(Employee employee) {
+        return repo.save(employee);
+    }
+
+    // UPDATE EMPLOYEE
+    public Optional<Employee> updateEmployee(Integer id, Employee updated) {
+        return repo.findById(id).map(existing -> {
+
+            existing.setEmpName(updated.getEmpName());
+            existing.setEmpEmail(updated.getEmpEmail());
+            existing.setEmpPassword(updated.getEmpPassword());
+            existing.setDob(updated.getDob());
+            existing.setEmpAddress(updated.getEmpAddress());
+            existing.setRole(updated.getRole());
+
+            return repo.save(existing);
+        });
+    }
+
+    // DELETE EMPLOYEE
+    public boolean dele
+package com.cts.employeeasset.userservice.service;
+
+import com.cts.employeeasset.userservice.model.Employee;
+import com.cts.employeeasset.userservice.model.LoginResponse;
+import com.cts.employeeasset.userservice.repository.EmployeeRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class EmployeeService {
+
+    private final EmployeeRepository repo;
+
+    // LOGIN
+    public Optional<LoginResponse> login(String empId, String email, String password) {
+
+        // LOGIN BY ID
+        if (empId != null && !empId.isBlank()) {
+            try {
+                Integer id = Integer.parseInt(empId);
+
+                return repo.findById(id)
+                        .filter(e -> e.getEmpPassword().equals(password))
+                        .map(e -> new LoginResponse(
+                                "OK",
+                                e.getEmpId(),
+                                e.getEmpName(),
+                                e.getRole().name()
+                        ));
+
+            } catch (Exception ignored) {}
+        }
+
+        // LOGIN BY EMAIL
+        if (email != null && !email.isBlank()) {
+            return repo.findByEmpEmail(email)
+                    .filter(e -> e.getEmpPassword().equals(password))
+                    .map(e -> new LoginResponse(
+                            "OK",
+                            e.getEmpId(),
+                            e.getEmpName(),
+                            e.getRole().name()
+                    ));
+        }
+
+        return Optional.empty();
+    }
+
+    // ADD EMPLOYEE
+    public Employee addEmployee(Employee employee) {
+        return repo.save(employee);
+    }
+
+    // UPDATE EMPLOYEE
+    public Optional<Employee> updateEmployee(Integer id, Employee updated) {
+        return repo.findById(id).map(existing -> {
+
+            existing.setEmpName(updated.getEmpName());
+            existing.setEmpEmail(updated.getEmpEmail());
+            existing.setEmpPassword(updated.getEmpPassword());
+            existing.setDob(updated.getDob());
+            existing.setEmpAddress(updated.getEmpAddress());
+            existing.setRole(updated.getRole());
+
+            return repo.save(existing);
+        });
+    }
+
+    // DELETE EMPLOYEE
+    public boolean dele
