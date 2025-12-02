@@ -1,89 +1,76 @@
-package com.cts.employeeasset.userservice.service;
+package com.cts.employeeasset.userservice.controller;
 
 import com.cts.employeeasset.userservice.model.Employee;
 import com.cts.employeeasset.userservice.model.LoginResponse;
-import com.cts.employeeasset.userservice.repository.EmployeeRepository;
+import com.cts.employeeasset.userservice.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Service
+import java.util.Map;
+
+@RestController
+@RequestMapping("/employees")
 @RequiredArgsConstructor
-public class EmployeeService {
+public class EmployeeController {
 
-    private final EmployeeRepository repo;
+    private final EmployeeService service;
 
     // LOGIN
-    public Optional<LoginResponse> login(String empId, String email, String password) {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
 
-        // LOGIN BY ID
-        if (empId != null && !empId.isBlank()) {
-            try {
-                Integer id = Integer.parseInt(empId);
+        String empId = body.get("empId");
+        String email = body.get("empEmail");
+        String password = body.get("password");
 
-                return repo.findById(id)
-                        .filter(e -> e.getEmpPassword().equals(password))
-                        .map(e -> new LoginResponse(
-                                "OK",
-                                e.getEmpId(),
-                                e.getEmpName(),
-                                e.getRole().name()
-                        ));
-
-            } catch (Exception ignored) {}
-        }
-
-        // LOGIN BY EMAIL
-        if (email != null && !email.isBlank()) {
-            return repo.findByEmpEmail(email)
-                    .filter(e -> e.getEmpPassword().equals(password))
-                    .map(e -> new LoginResponse(
-                            "OK",
-                            e.getEmpId(),
-                            e.getEmpName(),
-                            e.getRole().name()
-                    ));
-        }
-
-        return Optional.empty();
+        return service.login(empId, email, password)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity
+                        .status(401)
+                        .body(new LoginResponse("FAIL", null, null, null)));
     }
 
     // ADD EMPLOYEE
-    public Employee addEmployee(Employee employee) {
-        return repo.save(employee);
+    @PostMapping
+    public ResponseEntity<?> addEmployee(@RequestBody Employee employee) {
+        return ResponseEntity.ok(service.addEmployee(employee));
     }
 
     // UPDATE EMPLOYEE
-    public Optional<Employee> updateEmployee(Integer id, Employee updated) {
-        return repo.findById(id).map(existing -> {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmployee(
+            @PathVariable Integer id,
+            @RequestBody Employee employee) {
 
-            existing.setEmpName(updated.getEmpName());
-            existing.setEmpEmail(updated.getEmpEmail());
-            existing.setEmpPassword(updated.getEmpPassword());
-            existing.setDob(updated.getDob());
-            existing.setEmpAddress(updated.getEmpAddress());
-            existing.setRole(updated.getRole());
-
-            return repo.save(existing);
-        });
+        return service.updateEmployee(id, employee)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // DELETE EMPLOYEE
-    public boolean deleteEmployee(Integer id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        }
-        return false;
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
+
+        boolean removed = service.deleteEmployee(id);
+
+        return removed
+                ? ResponseEntity.ok(Map.of("status", "DELETED"))
+                : ResponseEntity.status(404).body(Map.of("status", "NOT_FOUND"));
     }
 
-    public Optional<Employee> getEmployee(Integer id) {
-        return repo.findById(id);
+    // GET PROFILE
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEmployee(@PathVariable Integer id) {
+        return service.getEmployee(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // SEARCH BY NAME (For Department Login)
-    public List<Employee> searchByName(String name) {
-        return repo.findByEmpNameContainingIgnoreCase(name);
+    // SEARCH EMPLOYEES (for Department Login)
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(defaultValue = "") String name) {
+        return ResponseEntity.ok(service.searchByName(name));
     }
 }
