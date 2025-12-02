@@ -1,76 +1,10 @@
-package com.cts.employeeasset.userservice.controller;
+package com.cts.employeeasset.userservice.model;
 
-import com.cts.employeeasset.userservice.model.Employee;
-import com.cts.employeeasset.userservice.model.LoginResponse;
-import com.cts.employeeasset.userservice.service.EmployeeService;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-
-@RestController
-@RequestMapping("/employees")
-@RequiredArgsConstructor
-public class EmployeeController {
-
-    private final EmployeeService service;
-
-    // LOGIN
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-
-        String empId = body.get("empId");
-        String email = body.get("empEmail");
-        String password = body.get("password");
-
-        return service.login(empId, email, password)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity
-                        .status(401)
-                        .body(new LoginResponse("FAIL", null, null, null)));
-    }
-
-    // ADD EMPLOYEE
-    @PostMapping
-    public ResponseEntity<?> addEmployee(@RequestBody Employee employee) {
-        return ResponseEntity.ok(service.addEmployee(employee));
-    }
-
-    // UPDATE EMPLOYEE
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(
-            @PathVariable Integer id,
-            @RequestBody Employee employee) {
-
-        return service.updateEmployee(id, employee)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // DELETE EMPLOYEE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
-
-        boolean removed = service.deleteEmployee(id);
-
-        return removed
-                ? ResponseEntity.ok(Map.of("status", "DELETED"))
-                : ResponseEntity.status(404).body(Map.of("status", "NOT_FOUND"));
-    }
-
-    // GET PROFILE
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getEmployee(@PathVariable Integer id) {
-        return service.getEmployee(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // SEARCH EMPLOYEES (for Department Login)
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam(defaultValue = "") String name) {
-        return ResponseEntity.ok(service.searchByName(name));
-    }
+@Data
+public class LoginRequest {
+    private String empId;
+    private String empEmail;
+    private String password;
 }
