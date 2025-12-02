@@ -1,25 +1,72 @@
-package com.cts.employeeasset.userservice.model;
+package com.cts.employeeasset.userservice.service;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDate;
+import com.cts.employeeasset.userservice.model.Employee;
+import com.cts.employeeasset.userservice.repository.EmployeeRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Employee {
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-    @Id
-    private Integer empId;
+@Service
+@RequiredArgsConstructor
+public class EmployeeService {
 
-    private String empName;
-    private String empPassword;
-    private String empEmail;
-    private LocalDate dob;
-    private String empAddress;
+    private final EmployeeRepository repo;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;   // USER or DEPARTMENT
+    // Login — returns Optional<Map> containing status + emp info + role
+    public Optional<Map<String, Object>> login(String empId, String email, String password) {
+
+        if (empId != null && !empId.isBlank()) {
+            try {
+                Integer id = Integer.parseInt(empId);
+                return repo.findById(id)
+                        .filter(e -> e.getEmpPassword().equals(password))
+                        .map(e -> Map.of(
+                                "status", "OK",
+                                "empId", e.getEmpId(),
+                                "empName", e.getEmpName(),
+                                "role", e.getRole().name()
+                        ));
+            } catch (Exception ignored) {}
+        }
+
+        if (email != null && !email.isBlank()) {
+            return repo.findByEmpEmail(email)
+                    .filter(e -> e.getEmpPassword().equals(password))
+                    .map(e -> Map.of(
+                            "status", "OK",
+                            "empId", e.getEmpId(),
+                            "empName", e.getEmpName(),
+                            "role", e.getRole().name()
+                    ));
+        }
+
+        return Optional.empty();
+    }
+
+    // CRUD & search
+    public Employee addEmployee(Employee employee) { return repo.save(employee); }
+
+    public Optional<Employee> updateEmployee(Integer id, Employee updated) {
+        return repo.findById(id).map(existing -> {
+            existing.setEmpName(updated.getEmpName());
+            existing.setEmpEmail(updated.getEmpEmail());
+            existing.setEmpPassword(updated.getEmpPassword());
+            existing.setDob(updated.getDob());
+            existing.setEmpAddress(updated.getEmpAddress());
+            existing.setRole(updated.getRole());
+            return repo.save(existing);
+        });
+    }
+
+    public boolean deleteEmployee(Integer id) {
+        if (repo.existsById(id)) { repo.deleteById(id); return true; }
+        return false;
+    }
+
+    public Optional<Employee> getEmployee(Integer id) { return repo.findById(id); }
+
+    public List<Employee> searchByName(String name) { return repo.findByEmpNameContainingIgnoreCase(name); }
 }
