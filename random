@@ -1,22 +1,12 @@
-package com.cts.employeeasset.userservice.model;
+package com.cts.employeeasset.userservice.repository;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.Data;
+import com.cts.employeeasset.userservice.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
-@Entity
-@Data
-public class Employee {
-
-    @Id
-    private Integer empId;
-
-    private String empName;
-    private String empPassword;
-    private String empEmail;
-    private LocalDate dob;
-    private String empAddress;
-    private String role;   // USER or DEPT
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    Optional<Employee> findByEmpEmail(String email);
+    List<Employee> findByEmpNameContainingIgnoreCase(String name);
 }
