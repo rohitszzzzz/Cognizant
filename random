@@ -1,36 +1,14 @@
-package com.example.userservice.model;
+package com.example.userservice.repository;
 
-import javax.persistence.*;
-import java.time.LocalDate;
+import com.example.userservice.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Entity
-@Table(name = "employee")
-public class Employee {
+import java.util.List;
+import java.util.Optional;
 
-    @Id
-    private Integer empId;
-
-    private String empName;
-    private String empPassword;
-    private String empEmail;
-    private LocalDate dob;
-    private String empAddress;
-    private String role; // USER or DEPT
-
-    // Getters & Setters
-    // (Keep simple)
-    public Integer getEmpId() { return empId; }
-    public void setEmpId(Integer empId) { this.empId = empId; }
-    public String getEmpName() { return empName; }
-    public void setEmpName(String empName) { this.empName = empName; }
-    public String getEmpPassword() { return empPassword; }
-    public void setEmpPassword(String empPassword) { this.empPassword = empPassword; }
-    public String getEmpEmail() { return empEmail; }
-    public void setEmpEmail(String empEmail) { this.empEmail = empEmail; }
-    public LocalDate getDob() { return dob; }
-    public void setDob(LocalDate dob) { this.dob = dob; }
-    public String getEmpAddress() { return empAddress; }
-    public void setEmpAddress(String empAddress) { this.empAddress = empAddress; }
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+@Repository
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    Optional<Employee> findByEmpEmail(String email);
+    List<Employee> findByEmpNameContainingIgnoreCase(String name);
 }
