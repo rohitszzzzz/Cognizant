@@ -1,0 +1,93 @@
+Hi All,
+Please find below the details of the assignment. Split yourselves into 3 groups and 2 groups work on screens and FE logic and 1 group can work on BE logic and DB part. Let me know if you have any questions.
+
+We will be building an employee asset management system with two types of login, User Login(UL) and Department Login(DL)
+
+Landing Screen : (for both UL & DL)
+
+A simple page with a company logo(use Cognizant Logo) on the top left corner.
+
+Username(should accept emp_Id or emp_email) and password fields(password field should mask the input).
+Two buttons, one for User Login and another for Department Login.
+
+User Login flow : 
+
+Screen 1 : 
+
+Divided into 3 panes.
+
+Top half of the page is split into two panes and the bottom half of the page contains one pane.
+
+Top Left pane should display the User profile  like Name, email ID, DOB, address information.
+Top Right pane should display any info on the pending requests or issues reported on the assets. Pending requests should have a yellow background and issues should have a red font.
+
+Bottom pane will list the assets(Laptop, Desktop, Monitor, keyboard, mouse, headphones, IP Phone) assigned to the employee.
+
+
+Screen 2 : 
+On click of the asset, the user will be taken to details page.
+
+It will contain information regarding the Asset Id, Asset Name, Allocated since when, Allocation ending date, Renewal reminder date(one month before allocation ending date)
+
+It should also contain a button to Release asset and Replace asset.
+On click of Release asset, a confirmation dialog box appears, "Are you sure you want to release the asset?" with OK and Cancel buttons.
+
+On click of Cancel, close the popup and on click of OK, the user should be shown the Screen 1 and the asset should be removed from the user.
+
+
+Department Login Flow : 
+
+Screen 1 : 
+
+Top Row contains the following fields
+
+A text box to enter user name(will filter results based on the user, when no input is given, considered as wildcard)
+A drop down to select Asset type(Laptop, Desktop, Monitor, keyboard, mouse, headphones, IP Phone)
+A drop down to select status (Pending, Assigned, Issues) (allow multiple selection)
+A search button.
+
+On click of button, display the results in a tabular format with the following fields.
+
+Asset Name, Asset Status, Asset Type, Assigned To, Allocated since
+
+On click of the asset, show the details page of Screen 2 : User login flow
+
+
+Database design : 
+
+
+Employee table
+emp_id
+emp_name
+emp_password
+emp_email
+DOB
+emp_address
+
+
+Asset table
+asset_id
+asset_name
+asset_type
+
+
+Asset_alloc table
+asset_alloc_id
+asset_id(foreign key)
+allocated_to(emp_id Foreign key)
+allocation_start_date
+allocation_end_date
+
+
+
+Asset_Management
+asset_mgmt_id
+asset_id(foreign key)
+issue_type(issue/request)
+raised_on(date field)
+raised_by(emp_id)
+issue_desc
+
+
+Regards,
+RamKumar M
