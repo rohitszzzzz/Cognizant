@@ -1,14 +1,10 @@
-package com.example.userservice.repository;
+server.port=8081
+spring.application.name=user-service
 
-import com.example.userservice.model.Employee;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+spring.datasource.url=jdbc:mysql://localhost:3306/userdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=YOUR_PASSWORD
 
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
-    Optional<Employee> findByEmpEmail(String email);
-    List<Employee> findByEmpNameContainingIgnoreCase(String name);
-}
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
